@@ -1,0 +1,8 @@
+reviews = LOAD 's3://amazon-reviews-pds/tsv/**' AS (marketplace:chararray,customer_id:chararray,review_id:chararray,product_id:chararray,product_parent:chararray,product_title:chararray,product_category:chararray,star_rating:float,helpful_votes:int,total_votes:int,vine:chararray,verified_purchase:chararray,review_headline:chararray,review_body:chararray, review_date:chararray);
+lreviews = FILTER reviews BY SIZE(review_body)>= 100;
+filtered_stuff = FILTER lreviews BY (total_votes >= 30) AND (verified_purchase == 'Y');
+category_info = GROUP filtered_stuff BY product_category;
+avg_counts = FOREACH category_info GENERATE group, AVG(filtered_stuff.star_rating) AS cat_reviews_count;
+ordered_avg_reviews = ORDER avg_counts BY cat_reviews_count DESC, group DESC;
+limited_ed = LIMIT ordered_avg_reviews 15;
+Store limited_ed into 's3://cse6242oan-2019fall-usreeram3/output-big/' using PigStorage('\t');

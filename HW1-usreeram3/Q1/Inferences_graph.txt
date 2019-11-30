@@ -1,0 +1,7 @@
+In the graph.png,
+the parts are highlighted in pink
+
+and the sets in green.
+
+
+If we observe the graph,we can see that there four major parts groups in the sets retrieved. 

@@ -1,0 +1,318 @@
+<html >
+    <head>
+        <title>US Earthquakes by Region 2010-2015</title>
+        <style>
+            
+        .south{
+          fill: none;
+          stroke: #900C3F;
+          stroke-width: 2px;
+        }
+
+        .west {
+          fill: none;
+          stroke: #FFC300;
+          stroke-width: 2px;
+        }
+
+        .midwest {
+          fill: none;
+          stroke: #FF5733;
+          stroke-width: 2px;
+        }
+
+        .northeast {
+          fill: none;
+          stroke: #C70039;
+          stroke-width: 2px;
+        }
+
+        .legend rect {
+          fill:white;
+          stroke:black;
+          opacity:0.8;
+        }
+
+        </style>
+        <script src="../lib/d3.v5.min.js"></script>
+
+
+        <svg id = "area1" width=1000 height=500></svg>
+        <svg id = "area2" width=1000 height=600></svg>
+
+        <script>
+            var svg = d3.select("#area1")
+            width = svg.attr("width") - 100
+            height = svg.attr("height") - 100
+
+            var svg2 = d3.select("#area2")
+            width2 = svg2.attr("width") - 200
+            height2 = svg2.attr("height") - 200
+        
+         
+                
+            var xScale = d3.scaleTime().range([0,width]);
+            var yScale = d3.scaleLinear().range([height, 0]);
+
+            var x = d3.scaleLinear().range([0,width2]);
+
+            var y = d3.scaleBand().range([height2,0]).padding(0.1);
+
+            var g = svg.append("g").attr("transform", "translate(" + 75 + "," + 75 + ")");
+            var g2 = svg2.append("g").attr("transform", "translate(" + 75 + "," + 75 + ")");
+
+            g.append("text")
+             .attr("x",width/2)
+             .attr("y",-20)
+             .attr("text-anchor","middle")
+             .text("Worldwide Earthquake stats 2000-2015")
+
+            g.append("text")             
+             .attr("transform", "translate(" + (width/2) + " ," + 
+                           (height + 40) + ")")
+             .style("text-anchor", "middle")
+             .text("Year");
+
+            g.append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", - 60)
+              .attr("x",0 - (height / 2))
+              .attr("dy", "1em")
+              .style("text-anchor", "middle")
+              .text("Num of Earthquakes");
+
+            var colors = d3.scaleOrdinal()
+                .domain(["south", "west", "northeast", "midwest"])
+                .range(["#FF0000", "#00FF00", "#00FFFF", "#2ca25f"]);
+
+            var line = d3.line()
+                            .x(function(d) { return xScale(new Date(d.year)); })
+                            .y(function(d) { return yScale(+d.count); });
+
+
+            var legend_keys = ["Midwest", "Northeast", "South","West"]
+    
+            var legend = svg.selectAll(".lineLegend").data(legend_keys)
+                                .enter().append("g")
+                                .attr("class","legend")
+                                .attr("transform", function (d,i) {
+                                        return "translate(" + width*1 + "," + (i*20)+")";
+                                    });
+
+                legend.append("text").text(function (d) {return d;})
+                           .attr("transform", "translate(25,50)")
+                           .style("font-size", "17px"); //align texts with boxes
+
+                legend.append("circle")
+                            .attr("transform", "translate(20,45)")
+                           .attr("fill", function (d, i) {return colors(d); })
+                           .attr("r", 5);
+
+
+            d3.dsv(",","state-year-earthquakes.csv").then(function(data) {
+
+                console.log(data)
+                var maximumcount = 0
+                xScale.domain(d3.extent(data, function(d) { return new Date(d.year); }));
+
+
+                var regionnest = d3.nest()
+                    .key(function(d) {return d.region})
+                    .entries(data)
+
+                var list_ycrs = []
+                //list_of_innerNests=[]
+
+                Regions=['South','West','Northeast','Midwest']
+               
+                regionnest.forEach(function(d) {
+                  var ycrbind = d3.nest()
+                    .key(function(d) {return d.year})
+                    .rollup(function(d) { 
+                        return d3.sum(d, function(d) {return d.count; });
+                      })
+                    .entries(d.values)
+
+                  console.log(ycrbind)
+
+
+
+
+
+
+
+            //  g.append("text")
+            //  .attr("x",width/2)
+            //  .attr("y",-20)
+            //  .attr("text-anchor","middle")
+            //  .text("Worldwide Earthquake stats 2000-2015")
+
+            // g.append("text")             
+            //  .attr("transform", "translate(" + (width/2) + " ," + 
+            //                (height + 40) + ")")
+            //  .style("text-anchor", "middle")
+            //  .text("Year");
+
+            // g.append("text")
+            //   .attr("transform", "rotate(-90)")
+            //   .attr("y", - 60)
+            //   .attr("x",0 - (height / 2))
+            //   .attr("dy", "1em")
+            //   .style("text-anchor", "middle")
+            //   .text("Num of Earthquakes");
+
+            // var colors = d3.scaleOrdinal()
+            //     .domain(["south", "west", "northeast", "midwest"])
+            //     .range(["#FF0000", "#00FF00", "#00FFFF", "#2ca25f"]);
+
+            // var line = d3.line()
+            //                 .x(function(d) { return xScale(new Date(d.year)); })
+            //                 .y(function(d) { return yScale(+d.count); });
+
+
+             //g.append("text")
+            //  .attr("x",width/2)
+            //  .attr("y",-20)
+            //  .attr("text-anchor","middle")
+            //  .text("Worldwide Earthquake stats 2000-2015")
+
+            // g.append("text")             
+            //  .attr("transform", "translate(" + (width/2) + " ," + 
+            //                (height + 40) + ")")
+            //  .style("text-anchor", "middle")
+            //  .text("Year");
+
+            // g.append("text")
+            //   .attr("transform", "rotate(-90)")
+            //   .attr("y", - 60)
+            //   .attr("x",0 - (height / 2))
+            //   .attr("dy", "1em")
+            //   .style("text-anchor", "middle")
+            //   .text("Num of Earthquakes");
+
+            // var colors = d3.scaleOrdinal()
+            //     .domain(["south", "west", "northeast", "midwest"])
+            //     .range(["#FF0000", "#00FF00", "#00FFFF", "#2ca25f"]);
+
+            // var line = d3.line()
+            //                 .x(function(d) { return xScale(new Date(d.year)); })
+            //                 .y(function(d) { return yScale(+d.coun
+
+
+
+
+
+
+                 ycrbind.forEach(function(d1) {
+                     d1.year = d1.key;
+                     d1.count = d1.value;
+                     d1.region = d.key
+                  });
+
+                 maximumcount = Math.max(maximumcount, d3.max(ycrbind, function(d) { return Math.max(d.count) }))               
+
+                 list_ycrs.push(ycrbind)
+
+
+                });
+
+                yScale.domain([0, maximumcount]);
+           
+
+
+                list_ycrs.forEach(function(d){
+                     g.append("g")
+                   .append("path")
+                   .data([d])
+                   .style("stroke",colors(d[0].region))
+                   .style("fill","none")
+                   .attr("d", line);
+
+                 g.selectAll("dot")
+                  .data(d)
+                  .enter()
+                  .append("circle")
+                    .attr("cx", function(d) { return xScale(new Date(d.year)) } )
+                    .attr("cy", function(d) { return yScale(+d.count) } )
+                    .attr("r", 3)
+                    .attr("fill", colors(d[0].region))
+                    .on("mouseover", mouseover)
+                    .on("mouseout", mouseout)
+                })
+
+                g.append("g")
+                      .attr("transform", "translate(0," + height + ")")
+                      .call(d3.axisBottom(xScale));
+
+                // Add the Y Axis
+                g.append("g")
+                    .call(d3.axisLeft(yScale));
+
+             
+
+
+                function mouseover(d, i) {  
+                    console.log(d)
+                    console.log(data)
+
+                  g2.selectAll("*").remove();
+
+                  d3.select(this).attr("r",6);
+
+                    filt = data.filter(function(data){return data.region == d.region && data.year == d.year})
+
+                                      
+
+                    filt.sort(function(x,y){
+                      return d3.ascending(+x.count, +y.count) || d3.ascending(x.state, y.state);
+                    })
+                
+              
+
+                  x.domain([0, d3.max(filt, function(d) { return +d.count; })]);
+                  y.domain(filt.map(function(d) { return d.state; }));
+
+
+
+                  g2.append("g")
+                      .attr("transform", "translate(0," + height2 + ")")
+                      .call(d3.axisBottom(x));
+
+
+                g2.append("g")
+                    .call(d3.axisLeft(y));
+
+                g2.selectAll("bar")
+                 .data(filt)
+                 .enter().append("rect")
+                 .attr("fill",'red')
+                 .attr("x",0 )
+                 .attr("width", function(d){
+                     return x(d.count)
+                 })
+                .attr("y", function(d) { return y(d.state); })
+                .attr("height", y.bandwidth());
+
+                  g2.append("text")
+                   .attr("x",width2/2)
+                   .attr("y",-20)
+                   .attr("text-anchor","middle")
+                   .text(d.region+"ern Region Earthquakes "+d.year)
+
+
+                
+              }
+
+              function mouseout(d, i) {
+                  d3.select(this).attr("r",3);
+                  g2.selectAll("*").remove()
+
+              }
+
+            }); 
+
+        </script>
+    </head>
+<body>
+</body>
+</html>

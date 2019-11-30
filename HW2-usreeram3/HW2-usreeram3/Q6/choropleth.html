@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8">
+
+<style>
+
+
+
+.state {
+
+  stroke-linejoin: round;
+
+}
+
+
+ 
+
+/
+
+
+
+
+</style>
+
+<svg width="960" height="600"></svg>
+
+<script src="../lib/d3.v5.min.js"></script>
+
+<script src="../lib/d3-scale-chromatic.v1.min.js"></script>
+
+<script src="../lib/topojson.v2.min.js"></script>
+
+<script src="../lib/d3-tip.min.js"></script>
+
+<script>
+
+
+
+var svg = d3.select("svg"),
+
+    width = +svg.attr("width"),
+
+    height = +svg.attr("height");
+
+
+
+var data = d3.map();
+
+
+
+var projection = d3.geoAlbersUsa()
+
+    .translate([width/2, height/2])
+
+    .scale(800)
+
+
+
+var path = d3.geoPath()
+
+            .projection(projection);
+
+
+
+var x = d3.scaleLinear()
+
+    .domain([1, 10])
+
+    .rangeRound([600, 860]);
+
+
+
+var color = d3.scaleThreshold()
+
+    .domain(d3.range(0, 10)) //input
+
+    .range(d3.schemeBlues[9]); //ouput
+
+
+
+
+
+
+
+var promises = [
+
+  d3.json("states-10m.json"),
+
+  d3.csv("state-earthquakes.csv", function(d) { data.set(d.States, +d["Total Earthquakes"]); })  
+
+]
+
+
+
+// Add choropleth map
+
+d3.csv("state-earthquakes.csv").then(function(mydata) {
+
+    var maxtotal = []
+
+    mydata.forEach(function(d) {
+
+				d["Total Earthquakes"] = +d["Total Earthquakes"];
+
+                maxtotal.push(d["Total Earthquakes"])
+
+			});
+
+
+
+    Promise.all(promises).then(initial)
+
+
+
+    maxtotal = Math.max(...maxtotal)
+
+ 
+
+
+
+    function getcount(statename) {
+
+        for (i=0; i<mydata.length; i++) {
+
+            if (statename == mydata[i]["States"]) {return mydata[i]["Total Earthquakes"]}
+
+        }
+
+    }
+
+
+
+    function getcountinlog(statename) {
+
+        for (i=0; i<mydata.length; i++) {
+
+            if (statename == mydata[i]["States"]) {return Math.log(mydata[i]["Total Earthquakes"])}
+
+        }
+
+    }
+
+
+
+    function getreg(statename) {
+
+        for (i=0; i<mydata.length; i++) {
+
+            if (statename == mydata[i]["States"]) {return mydata[i].Region}
+
+        }
+
+    }
+
+
+
+    
+
+
+
+
+
+    function initial([data]) {
+
+        console.log("Data")
+
+        console.log(data)
+
+        //var states = topojson.feature(data, data.objects.States).features
+
+        var states = topojson.feature(data, data.objects.states).features
+
+
+
+        console.log("States")
+        console.log(states)
+        var colorSchema = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b']
+        var color=d3.scaleQuantile().domain([0,8,Math.log(maxtotal)]).range(colorSchema);
+        console.log('max count',Math.log(maxtotal))
+        var t = [0].concat(color.quantiles());
+        index = []
+        t.forEach(function(d){
+        index.push(Math.round(Math.exp(d)))
+        });
+
+        console.log(index);
+
+        
+
+        svg.selectAll(".state")
+
+            .data(states)
+            .enter().append("path")
+            .attr("class", "state")
+            .attr("d", path)
+            .attr("fill", function(d) {
+
+
+                return color(getcountinlog(d.properties.name)||0)})
+
+            .attr("stroke","black");
+
+         
+
+
+
+
+            var legendRectSize = 10;
+
+
+
+            var legend = svg.selectAll(".legend")
+                     .data(index)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'legend');
+
+                    
+
+                
+
+            
+
+            
+
+            // Appends legend
+
+            for (i=0; i<index.length;i++) {
+
+                legend.append('rect')
+
+                    .attr("transform", "translate(880,200)")
+                    .attr('x', 0)
+                    .attr('y', 0 + 15 *i)
+                    .attr('width', legendRectSize + 8)
+                    .attr('height', legendRectSize)
+                    .style('fill', colorSchema[i])
+                    .style('stroke', colorSchema[i]);
+
+
+
+                legend.append('text')
+
+                    .attr("transform", "translate(880,200)")
+                    .attr('x', legendRectSize + 20)
+                    .attr('y', 10 + 15 *i)
+                    .text(index[i])
+                    .attr("font-size", '10px')
+
+                    ;}
+
+                
+
+                svg.append("text")
+                .attr("transform", "translate(800,200)")
+                .attr('y', -20)
+                .attr("fornt-size", "12px")
+                .text("Earthquake Frequency")
+
+
+
+        
+
+    }
+
+});
+
+
+
+</script>
+
+</body>

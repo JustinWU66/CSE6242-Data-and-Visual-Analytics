@@ -1,0 +1,11 @@
+
+Random forests consist of multiple single decision trees each based on a random sample of the training data.Results of all the trees are aggregated to one final result. They are typically more accurate than single decision trees. This is because Decision trees are prone to overfitting, especially when a tree is particularly deep.
+
+They limit overfitting without substantially increasing error due to bias is why they are such powerful models.
+
+Apart from training on different samples of data it is trained using a random subset of features. 
+
+
+
+My model achieved an accuracy of 97.81% (averaged over 5 runs)
+Time taken to run model : 3 mins 40 seconds or 220 seconds

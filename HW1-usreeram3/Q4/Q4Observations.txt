@@ -1,0 +1,11 @@
+i.rows:47
+
+ii.columns:5
+
+iii.function:ngram-fingerprint
+
+iv.GREL_brandname: if (isNull(value),toString(value)+"Unbranded",toString(value))
+
+v.GREL_highpriced: if(toNumber(value)>=100,1,0)
+
+vi.GREL_hasoffer: if(toLowercase(value).contains("discount"),"1",if(toLowercase(value).contains("offer"),"1", if(toLowercase(value).contains("sale"),"1","0")))

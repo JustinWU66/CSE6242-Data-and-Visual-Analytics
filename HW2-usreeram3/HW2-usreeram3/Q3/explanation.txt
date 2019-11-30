@@ -1,0 +1,10 @@
+
+
+Linear scales are probably the most commonly used scale type as they are the most suitable scale for transforming data values into positions and lengths. If there’s one scale type to learn about this is the one.
+
+They use a linear function (y = m * x + b) to interpolate across the domain and range.
+
+The scaleSqrt scale is a special case of the power scale (where k = 0.5) and is useful for sizing circles by area (rather than radius)
+
+Log scales interpolate using a log function (y = m * log(x) + b) and can be useful when the data has an exponential nature to it.
+
